@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Hello!</title>
+        <script src="main.js"></script>
+        <style>
+            img {
+                width: 1000px;
+                height: 750px;
+            }
+            
+            /* Style the clickable areas */
+            area {
+                display: block;
+                position: relative;
+                z-index: 1;
+            }
+            
+            /* Style the clickable areas when the user hovers over them */
+            .area-hover {
+                background-color: yellow;
+                opacity: 0.5;
+                z-index: 2;
+            }
+        </style>
+    </head>  
+    <body>
+        <img src="assets/map.png" usemap="#map" id="map" alt="">
+        <map name="map">
+            <area shape="poly" coords="145,9,131,32,146,57,171,57,186,31,171,8" href="#" alt="Maine" class="map-area">
+            <area shape="poly" coords="111,67,107,78,129,87,150,85,163,70,153,57,136,57" href="#" alt="New Hampshire" class="map-area">
+            <area shape="poly" coords="108,110,103,124,109,134,126,134,134,121,126,109,117,110" href="#" alt="Vermont" class="map-area">
+            <area shape="poly" coords="96,184,85,189,85,204,100,209,115,202,113,183" href="#" alt="New York" class="map-area">
+        </map>
+        <script>
+            const mapAreas = document.querySelectorAll('area');
+
+            mapAreas.forEach(function(area) {
+                area.addEventListener('mouseover', function() {
+                    this.classList.add('area-hover');
+                });
+                area.addEventListener('mouseout', function() {
+                    this.classList.remove('area-hover');
+                });
+            });
+        </script>
+    </body>
+</html>

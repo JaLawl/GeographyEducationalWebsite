@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hello!</title>
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="World_Countries_(Generalized).geojson"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+</head>
+
+<body>
+    <div id="welcome-popup">
+        <p>Welcome to my website!</br>Feel free too scroll around and click on different countries to learn some
+            interesting facts about them.
+        </p>
+        <button onclick="closeWelcome()">Close</button>
+    </div>
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+    <div id="tooltip"></div>
+    <script>
+        function showWelcome() {
+            document.getElementById("welcome-popup").style.display = "block";
+        }
+
+        function closeWelcome() {
+            document.getElementById("welcome-popup").style.display = "none";
+        }
+
+        window.onload = function () {
+            showWelcome();
+        };
+        var map = L.map("map", {
+            maxBounds: [[-100, 200], [100, -200]],
+            maxBoundsViscosity: 1.0
+        }).setView([0, 0], 1);
+        L.tileLayer("https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}.png?key=wTgvAlopzb7Tm7GL7HjB", {
+            attribution:
+                '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+        }).addTo(map);
+
+        var myStyle = {
+            color: "white",
+            weight: 2,
+            fillOpacity: 0.3,
+        };
+
+        var highlightStyle = {
+            color: "#ff0000",
+            weight: 2,
+            fillOpacity: 0.3,
+        };
+
+        var tooltip = L.DomUtil.get("tooltip");
+
+        var popup = L.popup();
+        var tooltip = L.DomUtil.get("tooltip");
+
+        var geojsonLayer = L.geoJSON(myGeoJSON, {
+            style: myStyle,
+            onEachFeature: function (feature, layer) {
+                layer.countryName = feature.properties.COUNTRY;
+                layer.on('mouseover', function (e) {
+                    e.target.setStyle(highlightStyle);
+                    tooltip.innerHTML = layer.countryName;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = e.originalEvent.pageX + 'px';
+                    tooltip.style.top = e.originalEvent.pageY - 25 + 'px';
+                });
+
+                layer.on('mouseout', function (e) {
+                    e.target.setStyle(myStyle);
+                    tooltip.style.display = 'none';
+                });
+
+                layer.on('mousemove', function (e) {
+                    tooltip.style.left = e.originalEvent.pageX + 'px';
+                    tooltip.style.top = e.originalEvent.pageY - 25 + 'px';
+                });
+
+                layer.on('click', function (e) {
+                    var countryName = e.target.feature.properties.COUNTRY;
+                    var countryInfoUrl = 'https://restcountries.com/v2/name/' + countryName + '?fullText=true';
+                    fetch(countryInfoUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            var countryFlag = '<img src="' + data[0].flags.png + '" width="100" height="60"/>';
+                            var countryInfo = '<h3>' + data[0].name + '</h3>' +
+                                '<p><strong>Capital:</strong> ' + data[0].capital + '</p>' +
+                                '<p><strong>Population:</strong> ' + data[0].population.toLocaleString() + '</p>' +
+                                '<p><strong>Region:</strong> ' + data[0].region + '</p>' +
+                                '<p><strong>Currency:</strong> ' + data[0].currencies[0].name + '</p>';
+
+                            popup.setLatLng(e.latlng)
+                                .setContent(countryFlag + countryInfo)
+                                .openOn(map);
+                        })
+                        .catch(error => console.log(error));
+                });
+            }
+        }).addTo(map);
+
+        popup.setLatLng(e.latlng)
+            .setContent(countryInfo)
+            .setOffset([0, -20])
+            .openOn(map);
+    </script>
+</body>
+
+</html>
